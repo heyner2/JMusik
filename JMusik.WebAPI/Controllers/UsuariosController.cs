@@ -66,7 +66,7 @@ namespace JMusik.WebApi.Controllers
         public async Task<ActionResult<UsuarioListaDto>> Post(UsuarioRegistroDto usuarioDto)
         {
             try
-            {
+            {               
                 var usuario = _mapper.Map<Usuario>(usuarioDto);
 
                 var nuevoUsuario = await _usuariosRepositorio.Agregar(usuario);

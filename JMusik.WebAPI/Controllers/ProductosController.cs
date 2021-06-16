@@ -12,10 +12,11 @@ using Jmusik.DTOS;
 using AutoMapper;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Authorization;
+using JMusik.WebAPI.Helpers;
 
 namespace JMusik.WebAPI.Controllers
 {
-    [Authorize(Roles ="Administrador,Vendedor")]
+   // [Authorize(Roles ="Administrador,Vendedor")]
     [Route("api/[controller]")]
     [ApiController]
     public class ProductosController : ControllerBase
@@ -35,21 +36,29 @@ namespace JMusik.WebAPI.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<IEnumerable<ProductoDto>>> Get()
+        public async Task<ActionResult<Paginator<ProductoDto>>> Get(
+            int paginaActual=1, int registrosPorPagina=3
+            )
         {
+            try
+            {
+                // var productos= await _repository.ObtenerProductosAsync();
+                var resultado = await _repository.ObtenerPaginasProductosAsync(paginaActual, registrosPorPagina);
+
+                var listaProductosDTO = _mapper.Map<List<ProductoDto>>(resultado.registros);
+                //   return            
+
+                return new Paginator<ProductoDto>(listaProductosDTO, resultado.totalDeRegistros, registrosPorPagina, paginaActual);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error al crear paginador  de productos en {nameof(Get)}, mensaje de error: {ex.Message}");
+                return BadRequest();
+             
+            }
            
-               var productos= await _repository.ObtenerProductosAsync();
-               
-            if (productos.Count > 0)
-            {
-                return _mapper.Map<List<ProductoDto>>(productos);
-            }
-            else
-            {
-                return NotFound();
-            }
-               
-            
+
+                                                     
         }
 
 

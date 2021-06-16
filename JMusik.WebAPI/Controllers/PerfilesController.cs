@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging;
 
 namespace JMusik.WebApi.Controllers
 {
-    [Authorize(Roles = "Vendedor")]
+   // [Authorize(Roles = "Vendedor")]
     [Route("api/[controller]")]
     [ApiController]
     public class PerfilesController : ControllerBase

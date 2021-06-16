@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging;
 
 namespace JMusik.WebApi.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class OrdenesController : ControllerBase

@@ -43,7 +43,10 @@ namespace JMusik.WebAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddAutoMapper(typeof(Startup));
-            services.AddControllers();
+            services.AddControllers(config =>
+            {
+                config.ReturnHttpNotAcceptable = true;
+            }).AddXmlDataContractSerializerFormatters();
             services.AddDbContext<TiendaDbContext>(options=>options.UseSqlServer(Configuration.GetConnectionString("TiendaDb")));
             services.ConfigureDependencies();
             services.ConfigureJwt(Configuration);

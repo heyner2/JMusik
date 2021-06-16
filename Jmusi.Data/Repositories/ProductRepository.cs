@@ -109,7 +109,16 @@ namespace JMusik.Data.Repositories
                                             .ToListAsync();
         }
 
+        public async Task<(int totalDeRegistros, IEnumerable<Producto> registros)>
+            ObtenerPaginasProductosAsync(int paginaActual,int registrosPorPagina)
+        {
+            var totalDeRegistros = await _contexto.Productos.Where(u=>u.Estatus==EstatusProducto.Activo).CountAsync();
 
+            var registros = await _contexto.Productos.Skip((paginaActual - 1) * registrosPorPagina).
+                Take(registrosPorPagina).ToListAsync();
+
+            return (totalDeRegistros, registros);
+        }
     }
 
 }
