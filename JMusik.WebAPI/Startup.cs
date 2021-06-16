@@ -5,6 +5,7 @@ using JMusik.Data.Repositories;
 using JMusik.Data.Repositorios;
 using JMusik.Models;
 using JMusik.WebApi.Services;
+using JMusik.WebAPI.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -44,60 +45,9 @@ namespace JMusik.WebAPI
             services.AddAutoMapper(typeof(Startup));
             services.AddControllers();
             services.AddDbContext<TiendaDbContext>(options=>options.UseSqlServer(Configuration.GetConnectionString("TiendaDb")));
-            services.AddScoped<IproductosRepository, ProductRepository>();
-            services.AddScoped<IRepositorioGenerico<Perfil>, RepositorioPerfiles>();
-            services.AddScoped<IOrdenesRepositorio, RepositorioOrdenes>();
-            services.AddScoped<IUsuariosRepositorio, RepositorioUsuarios>();
-            services.AddScoped<IPasswordHasher<Usuario>, PasswordHasher<Usuario>>();
-            services.AddSingleton<TokenService>();
-
-
-            //Accedemos a la sección JwtSettings del archivo appsettings.json
-            var jwtSettings = Configuration.GetSection("JwtSettings");
-            //Obtenemos la clave secreta guardada en JwtSettings:SecretKey
-            string secretKey = jwtSettings.GetValue<string>("SecretKey");
-            //Obtenemos el tiempo de vida en minutos del Jwt guardada en JwtSettings:MinutesToExpiration
-            int minutes = jwtSettings.GetValue<int>("MinutesToExpiration");
-            //Obtenemos el valor del emisor del token en JwtSettings:Issuer
-            string issuer = jwtSettings.GetValue<string>("Issuer");
-            //Obtenemos el valor de la audiencia a la que está destinado el Jwt en JwtSettings:Audience
-            string audience = jwtSettings.GetValue<string>("Audience");
-
-            var key = Encoding.ASCII.GetBytes(secretKey);
-
-            services.AddAuthentication(x =>
-            {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(x =>
-            {
-                x.RequireHttpsMetadata = false;
-                x.SaveToken = true;
-                x.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = true,
-                    ValidIssuer = issuer,
-                    ValidateAudience = true,
-                    ValidAudience = audience,
-                    ValidateLifetime = true,
-                    ClockSkew = TimeSpan.FromMinutes(minutes)
-                };
-            });
-
-
-
-            services.AddCors(options =>
-            {
-                options.AddPolicy("CorsPolicy",
-                    builder => builder.AllowAnyOrigin()
-                    .AllowAnyMethod()
-                    .AllowAnyHeader());
-                 //   .AllowCredentials());
-            });
-
-
+            services.ConfigureDependencies();
+            services.ConfigureJwt(Configuration);
+            services.ConfigureCors();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
